@@ -20,6 +20,10 @@ import {
   MEMBER_ELECTION_ABI,
 } from '../config/contracts'
 import { shortAddr } from '../utils'
+import staticCandidates from '../data/candidates.json'
+
+type StaticCandidate = { address: string; votes: string; isNominee: boolean; isExcluded: boolean }
+const STATIC: Record<string, StaticCandidate[]> = staticCandidates.candidates as Record<string, StaticCandidate[]>
 
 export interface Candidate {
   address: `0x${string}`
@@ -65,8 +69,18 @@ export function useNomineePhaseCandidates(
   startBlock: bigint,
   endBlock: bigint,
 ) {
-  const [candidates, setCandidates] = useState<Candidate[]>([])
-  const [loading, setLoading] = useState(true)
+  // Check static backfill first — avoids scanning millions of L2 blocks at runtime.
+  // (The startBlock/endBlock in elections.json are L1 block numbers, not L2, so
+  // passing them directly to getLogs would scan the wrong range.)
+  const staticEntry = STATIC[`${proposalId.toString()}_nominee`]
+  const hasStatic = staticEntry !== undefined
+
+  const [candidates, setCandidates] = useState<Candidate[]>(
+    hasStatic
+      ? staticEntry.map((c) => ({ ...c, address: c.address as `0x${string}`, votes: BigInt(c.votes), label: shortAddr(c.address as `0x${string}`) }))
+      : [],
+  )
+  const [loading, setLoading] = useState(!hasStatic)
   const [error, setError] = useState<string | null>(null)
 
   // Get the full nominees list (those that crossed threshold) for badge
@@ -75,23 +89,32 @@ export function useNomineePhaseCandidates(
     abi: NOMINEE_ELECTION_ABI,
     functionName: 'nominees',
     args: [proposalId],
+    query: { enabled: !hasStatic },
   })
 
   useEffect(() => {
+    if (hasStatic) return  // static data is sufficient
+
     let cancelled = false
     setLoading(true)
     setError(null)
 
     async function fetch() {
       try {
-        // 1. Get all ContenderAdded events for this proposal
+        // Scan from the contract's own ELECTIONS_START_BLOCK on L2 to avoid
+        // the L1-block-number confusion (startBlock/endBlock are L1 blocks).
+        const ELECTIONS_START_L2 = 150_000_000n
+        const clients = buildClients()
+        const client = clients[0]
+        const currentBlock = await client.getBlockNumber()
+
         const logs = await withFallback((c) =>
           c.getLogs({
             address: NOMINEE_ELECTION_GOVERNOR,
             event: CONTENDER_ADDED,
             args: { proposalId },
-            fromBlock: startBlock,
-            toBlock: endBlock + 500_000n, // some buffer past the proposal
+            fromBlock: ELECTIONS_START_L2,
+            toBlock: currentBlock,
           }),
         )
 
@@ -102,9 +125,6 @@ export function useNomineePhaseCandidates(
           return
         }
 
-        // 2. Read votesReceived for each contender (multicall-style parallel)
-        const clients = buildClients()
-        const client = clients[0]
         const voteResults = await Promise.all(
           addrs.map((addr) =>
             client.readContract({
@@ -125,7 +145,7 @@ export function useNomineePhaseCandidates(
           label: shortAddr(addr),
           votes: voteResults[i] ?? 0n,
           isNominee: nomineeSet.has(addr.toLowerCase()),
-          isExcluded: false, // excluded nominees are filtered out already
+          isExcluded: false,
         }))
 
         result.sort((a, b) => (b.votes > a.votes ? 1 : b.votes < a.votes ? -1 : 0))
@@ -139,7 +159,7 @@ export function useNomineePhaseCandidates(
 
     fetch()
     return () => { cancelled = true }
-  }, [proposalId, startBlock, endBlock, nomineeAddrs])
+  }, [proposalId, startBlock, endBlock, nomineeAddrs, hasStatic])
 
   return { candidates, loading, error }
 }
@@ -149,8 +169,15 @@ export function useNomineePhaseCandidates(
 // ---------------------------------------------------------------------------
 
 export function useMemberPhaseCandidates(proposalId: bigint) {
-  const [candidates, setCandidates] = useState<Candidate[]>([])
-  const [loading, setLoading] = useState(true)
+  const staticEntry = STATIC[`${proposalId.toString()}_member`]
+  const hasStatic = staticEntry !== undefined
+
+  const [candidates, setCandidates] = useState<Candidate[]>(
+    hasStatic
+      ? staticEntry.map((c) => ({ ...c, address: c.address as `0x${string}`, votes: BigInt(c.votes), label: shortAddr(c.address as `0x${string}`) }))
+      : [],
+  )
+  const [loading, setLoading] = useState(!hasStatic)
   const [error, setError] = useState<string | null>(null)
 
   // topNominees gives addresses of nominees going into the member election
@@ -159,9 +186,12 @@ export function useMemberPhaseCandidates(proposalId: bigint) {
     abi: MEMBER_ELECTION_ABI,
     functionName: 'topNominees',
     args: [proposalId],
+    query: { enabled: !hasStatic },
   })
 
   useEffect(() => {
+    if (hasStatic) return
+
     if (isError) {
       setError('Failed to load nominees')
       setLoading(false)
@@ -210,7 +240,7 @@ export function useMemberPhaseCandidates(proposalId: bigint) {
 
     fetch()
     return () => { cancelled = true }
-  }, [nomineeAddrs, isError, proposalId])
+  }, [nomineeAddrs, isError, proposalId, hasStatic])
 
   return { candidates, loading, error }
 }
