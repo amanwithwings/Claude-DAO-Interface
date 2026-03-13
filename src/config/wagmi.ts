@@ -6,13 +6,12 @@ export const config = createConfig({
   chains: [arbitrum],
   connectors: [injected()],
   transports: {
+    // For contract reads (state, votes, etc.) — wallet RPC first, then free public nodes.
+    // getLogs is handled separately in useProposals.ts via explicit client rotation.
     [arbitrum.id]: fallback([
-      // 1. Use the wallet's own RPC when connected (bypasses CORS, wide getLogs range)
       unstable_connector(injected),
-      // 2. PublicNode — free, CORS-enabled, full archive
+      http('https://arbitrum.llamarpc.com'),
       http('https://arbitrum-one.publicnode.com'),
-      // 3. Ankr — free, CORS-enabled backup
-      http('https://rpc.ankr.com/arbitrum'),
     ]),
   },
 })
