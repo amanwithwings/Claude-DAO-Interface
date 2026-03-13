@@ -27,7 +27,7 @@ export default function ProposalDetail() {
 
   const { address, isConnected } = useAccount()
   const { data: blockNumber } = useBlockNumber()
-  const { proposals, loading } = useProposals()
+  const { proposals, refreshing: loading } = useProposals()
 
   const proposalId = BigInt(proposalIdStr ?? '0')
   const governorAddress =

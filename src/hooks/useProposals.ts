@@ -121,8 +121,9 @@ async function fetchLogs(
 // ---------------------------------------------------------------------------
 
 export function useProposals() {
-  const [proposals, setProposals] = useState<Proposal[]>([])
-  const [loading, setLoading] = useState(true)
+  // Static data renders immediately — no spinner needed for it
+  const [proposals, setProposals] = useState<Proposal[]>(STATIC_PROPOSALS)
+  const [refreshing, setRefreshing] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   const { data: currentBlock } = useBlockNumber()
@@ -132,13 +133,11 @@ export function useProposals() {
 
     let cancelled = false
 
-    async function load() {
-      setLoading(true)
+    async function fetchLive() {
+      setRefreshing(true)
       setError(null)
 
       try {
-        // Live window: from just after the static cutoff (or currentBlock - RECENT_BLOCKS,
-        // whichever is more recent) up to the chain tip
         const liveFrom =
           STATIC_CUTOFF > 0n
             ? STATIC_CUTOFF + 1n
@@ -153,7 +152,6 @@ export function useProposals() {
 
         if (cancelled) return
 
-        // Merge static + live, dedup by proposalId
         const seen = new Set<bigint>()
         const merged: Proposal[] = []
         for (const p of [...coreLive, ...treasuryLive, ...STATIC_PROPOSALS]) {
@@ -165,15 +163,15 @@ export function useProposals() {
         merged.sort((a, b) => Number(b.startBlock - a.startBlock))
         setProposals(merged)
       } catch (e) {
-        if (!cancelled) setError(e instanceof Error ? e.message : 'Failed to load proposals')
+        if (!cancelled) setError(e instanceof Error ? e.message : 'Failed to fetch live proposals')
       } finally {
-        if (!cancelled) setLoading(false)
+        if (!cancelled) setRefreshing(false)
       }
     }
 
-    load()
+    fetchLive()
     return () => { cancelled = true }
   }, [currentBlock])
 
-  return { proposals, loading, error }
+  return { proposals, refreshing, error }
 }

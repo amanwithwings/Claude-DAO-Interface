@@ -7,7 +7,7 @@ type Filter = 'all' | 'core' | 'treasury'
 
 export default function Home() {
   const [filter, setFilter] = useState<Filter>('all')
-  const { proposals, loading, error } = useProposals()
+  const { proposals, refreshing, error } = useProposals()
 
   const filtered =
     filter === 'all' ? proposals : proposals.filter((p) => p.governor === filter)
@@ -17,11 +17,22 @@ export default function Home() {
       <Navbar />
 
       <main className="max-w-5xl mx-auto px-4 py-8">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Governance Proposals</h1>
-          <p className="text-gray-500 text-sm mt-1">
-            ArbitrumDAO on-chain governance — vote with your ARB tokens
-          </p>
+        <div className="mb-6 flex items-start justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Governance Proposals</h1>
+            <p className="text-gray-500 text-sm mt-1">
+              ArbitrumDAO on-chain governance — vote with your ARB tokens
+            </p>
+          </div>
+          {refreshing && (
+            <span className="text-xs text-gray-400 mt-1 flex items-center gap-1.5">
+              <svg className="animate-spin h-3 w-3" viewBox="0 0 24 24" fill="none">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+              </svg>
+              Checking for new proposals…
+            </span>
+          )}
         </div>
 
         {/* Filter tabs */}
@@ -41,37 +52,23 @@ export default function Home() {
           ))}
         </div>
 
-        {loading && (
-          <div className="space-y-3">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="bg-white border border-gray-200 rounded-xl p-4 animate-pulse">
-                <div className="h-4 bg-gray-200 rounded w-3/4 mb-3" />
-                <div className="h-3 bg-gray-200 rounded w-1/4 mb-3" />
-                <div className="h-1.5 bg-gray-200 rounded w-full" />
-              </div>
-            ))}
-          </div>
-        )}
-
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-red-700 text-sm">
-            <strong>Failed to load proposals:</strong> {error}
+          <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-red-700 text-sm mb-4">
+            <strong>Live update failed:</strong> {error}
           </div>
         )}
 
-        {!loading && !error && filtered.length === 0 && (
+        {filtered.length === 0 && !refreshing && (
           <div className="text-center py-16 text-gray-400">
             No proposals found.
           </div>
         )}
 
-        {!loading && !error && (
-          <div className="space-y-3">
-            {filtered.map((p) => (
-              <ProposalCard key={`${p.governor}-${p.proposalId}`} proposal={p} />
-            ))}
-          </div>
-        )}
+        <div className="space-y-3">
+          {filtered.map((p) => (
+            <ProposalCard key={`${p.governor}-${p.proposalId}`} proposal={p} />
+          ))}
+        </div>
       </main>
 
       <footer className="max-w-5xl mx-auto px-4 py-8 text-center text-xs text-gray-400">
