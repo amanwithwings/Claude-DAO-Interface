@@ -7,7 +7,7 @@ type Filter = 'all' | 'core' | 'treasury'
 
 export default function Home() {
   const [filter, setFilter] = useState<Filter>('all')
-  const { proposals, loading, loadingMore, hasMore, error, loadMore } = useProposals()
+  const { proposals, loading, error } = useProposals()
 
   const filtered =
     filter === 'all' ? proposals : proposals.filter((p) => p.governor === filter)
@@ -70,24 +70,6 @@ export default function Home() {
             {filtered.map((p) => (
               <ProposalCard key={`${p.governor}-${p.proposalId}`} proposal={p} />
             ))}
-
-            {hasMore && (
-              <div className="pt-2 text-center">
-                <button
-                  onClick={loadMore}
-                  disabled={loadingMore}
-                  className="px-5 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  {loadingMore ? 'Loading older proposals…' : 'Load older proposals'}
-                </button>
-              </div>
-            )}
-
-            {!hasMore && proposals.length > 0 && (
-              <p className="text-center text-xs text-gray-400 pt-4">
-                All proposals loaded — beginning of Arbitrum governance
-              </p>
-            )}
           </div>
         )}
       </main>
