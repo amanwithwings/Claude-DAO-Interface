@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useBlockNumber } from 'wagmi'
 import {
   createPublicClient,
@@ -30,6 +30,11 @@ const PROPOSAL_CREATED = parseAbiItem(
   'event ProposalCreated(uint256 proposalId, address proposer, address[] targets, uint256[] values, string[] signatures, bytes[] calldatas, uint256 startBlock, uint256 endBlock, string description)',
 )
 
+// Max blocks per eth_getLogs call (respected by Alchemy, PublicNode, etc.)
+const CHUNK = 50_000n
+// How many blocks to fetch per "page" (~1 month on Arbitrum at ~250ms/block)
+const PAGE_WINDOW = 10_000_000n
+
 type ProposalCreatedLog = {
   args: {
     proposalId: bigint
@@ -41,7 +46,7 @@ type ProposalCreatedLog = {
 }
 
 // ---------------------------------------------------------------------------
-// RPC getLogs via Alchemy
+// RPC client list — Alchemy first, wallet + public nodes as fallback
 // ---------------------------------------------------------------------------
 
 function buildClients(): PublicClient[] {
@@ -60,6 +65,10 @@ function buildClients(): PublicClient[] {
   return clients
 }
 
+// ---------------------------------------------------------------------------
+// Chunked getLogs — stays within the 50k-block limit every provider enforces
+// ---------------------------------------------------------------------------
+
 async function fetchLogs(
   address: `0x${string}`,
   fromBlock: bigint,
@@ -70,28 +79,21 @@ async function fetchLogs(
 
   for (const client of clients) {
     try {
-      let logs
-      try {
-        logs = await client.getLogs({ address, event: PROPOSAL_CREATED, fromBlock, toBlock })
-      } catch {
-        // Chunk into 2M-block slices, 20 concurrent
-        const CHUNK = 2_000_000n
-        const chunks: Array<{ from: bigint; to: bigint }> = []
-        for (let f = fromBlock; f <= toBlock; f += CHUNK + 1n) {
-          chunks.push({ from: f, to: f + CHUNK > toBlock ? toBlock : f + CHUNK })
-        }
-        const all: (typeof logs) = []
-        for (let i = 0; i < chunks.length; i += 20) {
-          const results = await Promise.all(
-            chunks.slice(i, i + 20).map(({ from, to }) =>
-              client.getLogs({ address, event: PROPOSAL_CREATED, fromBlock: from, toBlock: to }),
-            ),
-          )
-          all!.push(...results.flat())
-        }
-        logs = all
+      const chunks: Array<{ from: bigint; to: bigint }> = []
+      for (let f = fromBlock; f <= toBlock; f += CHUNK + 1n) {
+        chunks.push({ from: f, to: f + CHUNK > toBlock ? toBlock : f + CHUNK })
       }
-      return logs as unknown as ProposalCreatedLog[]
+
+      const all: ProposalCreatedLog[] = []
+      for (let i = 0; i < chunks.length; i += 20) {
+        const results = await Promise.all(
+          chunks.slice(i, i + 20).map(({ from, to }) =>
+            client.getLogs({ address, event: PROPOSAL_CREATED, fromBlock: from, toBlock: to }),
+          ),
+        )
+        all.push(...(results.flat() as unknown as ProposalCreatedLog[]))
+      }
+      return all
     } catch (e) {
       lastError = e
     }
@@ -101,7 +103,7 @@ async function fetchLogs(
 }
 
 // ---------------------------------------------------------------------------
-// Merge helpers
+// Helpers
 // ---------------------------------------------------------------------------
 
 function parse(
@@ -123,6 +125,17 @@ function parse(
     }))
 }
 
+async function fetchPage(fromBlock: bigint, toBlock: bigint): Promise<Proposal[]> {
+  const [coreLogs, treasuryLogs] = await Promise.all([
+    fetchLogs(CORE_GOVERNOR, fromBlock, toBlock),
+    fetchLogs(TREASURY_GOVERNOR, fromBlock, toBlock),
+  ])
+  return [
+    ...parse(coreLogs, 'core', CORE_GOVERNOR),
+    ...parse(treasuryLogs, 'treasury', TREASURY_GOVERNOR),
+  ]
+}
+
 // ---------------------------------------------------------------------------
 // Hook
 // ---------------------------------------------------------------------------
@@ -130,7 +143,10 @@ function parse(
 export function useProposals() {
   const [proposals, setProposals] = useState<Proposal[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [hasMore, setHasMore] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [oldestBlock, setOldestBlock] = useState<bigint | null>(null)
 
   const { data: currentBlock } = useBlockNumber()
 
@@ -145,34 +161,58 @@ export function useProposals() {
 
       try {
         const toBlock = currentBlock!
+        const fromBlock =
+          toBlock > GOVERNANCE_START_BLOCK + PAGE_WINDOW
+            ? toBlock - PAGE_WINDOW
+            : GOVERNANCE_START_BLOCK
 
-        const [coreLogs, treasuryLogs] = await Promise.all([
-          fetchLogs(CORE_GOVERNOR, GOVERNANCE_START_BLOCK, toBlock),
-          fetchLogs(TREASURY_GOVERNOR, GOVERNANCE_START_BLOCK, toBlock),
-        ])
-
+        const fetched = await fetchPage(fromBlock, toBlock)
         if (cancelled) return
 
-        const all: Proposal[] = [
-          ...parse(coreLogs, 'core', CORE_GOVERNOR),
-          ...parse(treasuryLogs, 'treasury', TREASURY_GOVERNOR),
-        ]
-
-        all.sort((a, b) => Number(b.startBlock - a.startBlock))
-        setProposals(all)
+        fetched.sort((a, b) => Number(b.startBlock - a.startBlock))
+        setProposals(fetched)
+        setOldestBlock(fromBlock)
+        setHasMore(fromBlock > GOVERNANCE_START_BLOCK)
       } catch (e) {
-        if (!cancelled)
-          setError(e instanceof Error ? e.message : 'Failed to load proposals')
+        if (!cancelled) setError(e instanceof Error ? e.message : 'Failed to load proposals')
       } finally {
         if (!cancelled) setLoading(false)
       }
     }
 
     load()
-    return () => {
-      cancelled = true
-    }
+    return () => { cancelled = true }
   }, [currentBlock])
 
-  return { proposals, loading, error }
+  const loadMore = useCallback(async () => {
+    if (!oldestBlock || loadingMore || oldestBlock <= GOVERNANCE_START_BLOCK) return
+
+    setLoadingMore(true)
+    setError(null)
+
+    try {
+      const toBlock = oldestBlock - 1n
+      const fromBlock =
+        toBlock > GOVERNANCE_START_BLOCK + PAGE_WINDOW
+          ? toBlock - PAGE_WINDOW
+          : GOVERNANCE_START_BLOCK
+
+      const fetched = await fetchPage(fromBlock, toBlock)
+
+      setProposals((prev) => {
+        const seen = new Set(prev.map((p) => p.proposalId))
+        const merged = [...prev, ...fetched.filter((p) => !seen.has(p.proposalId))]
+        merged.sort((a, b) => Number(b.startBlock - a.startBlock))
+        return merged
+      })
+      setOldestBlock(fromBlock)
+      setHasMore(fromBlock > GOVERNANCE_START_BLOCK)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to load older proposals')
+    } finally {
+      setLoadingMore(false)
+    }
+  }, [oldestBlock, loadingMore])
+
+  return { proposals, loading, loadingMore, hasMore, error, loadMore }
 }
