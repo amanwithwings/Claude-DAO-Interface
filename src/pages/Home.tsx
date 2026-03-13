@@ -7,7 +7,7 @@ type Filter = 'all' | 'core' | 'treasury'
 
 export default function Home() {
   const [filter, setFilter] = useState<Filter>('all')
-  const { proposals, loading, error, limitedHistory } = useProposals()
+  const { proposals, loading, error } = useProposals()
 
   const filtered =
     filter === 'all' ? proposals : proposals.filter((p) => p.governor === filter)
@@ -23,14 +23,6 @@ export default function Home() {
             ArbitrumDAO on-chain governance — vote with your ARB tokens
           </p>
         </div>
-
-        {limitedHistory && (
-          <div className="mb-4 text-sm bg-yellow-50 border border-yellow-200 rounded-lg px-4 py-3 text-yellow-800">
-            Your RPC limits log history. Showing recent proposals only. Configure a custom RPC
-            (e.g. Alchemy) in <code className="font-mono">src/config/wagmi.ts</code> for full
-            history.
-          </div>
-        )}
 
         {/* Filter tabs */}
         <div className="flex gap-1 mb-5 bg-gray-100 rounded-lg p-1 w-fit">
