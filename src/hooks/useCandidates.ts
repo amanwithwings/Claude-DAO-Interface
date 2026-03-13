@@ -73,7 +73,7 @@ export function useNomineePhaseCandidates(
   // (The startBlock/endBlock in elections.json are L1 block numbers, not L2, so
   // passing them directly to getLogs would scan the wrong range.)
   const staticEntry = STATIC[`${proposalId.toString()}_nominee`]
-  const hasStatic = staticEntry !== undefined
+  const hasStatic = staticEntry !== undefined && staticEntry.length > 0
 
   const [candidates, setCandidates] = useState<Candidate[]>(
     hasStatic
@@ -101,22 +101,35 @@ export function useNomineePhaseCandidates(
 
     async function fetch() {
       try {
-        // Scan from the contract's own ELECTIONS_START_BLOCK on L2 to avoid
-        // the L1-block-number confusion (startBlock/endBlock are L1 blocks).
+        // The startBlock/endBlock in elections.json are L1 block numbers, not L2.
+        // Scan the full L2 history in 50k-block chunks to find ContenderAdded events.
         const ELECTIONS_START_L2 = 150_000_000n
+        const CHUNK_SIZE = 50_000n
         const clients = buildClients()
         const client = clients[0]
         const currentBlock = await client.getBlockNumber()
 
-        const logs = await withFallback((c) =>
-          c.getLogs({
-            address: NOMINEE_ELECTION_GOVERNOR,
-            event: CONTENDER_ADDED,
-            args: { proposalId },
-            fromBlock: ELECTIONS_START_L2,
-            toBlock: currentBlock,
-          }),
-        )
+        const chunks: { from: bigint; to: bigint }[] = []
+        for (let f = ELECTIONS_START_L2; f <= currentBlock; f += CHUNK_SIZE + 1n)
+          chunks.push({ from: f, to: f + CHUNK_SIZE > currentBlock ? currentBlock : f + CHUNK_SIZE })
+
+        const allLogs: Awaited<ReturnType<typeof client.getLogs>> = []
+        for (let i = 0; i < chunks.length; i += 20) {
+          const results = await Promise.all(
+            chunks.slice(i, i + 20).map(({ from, to }) =>
+              client.getLogs({
+                address: NOMINEE_ELECTION_GOVERNOR,
+                event: CONTENDER_ADDED,
+                args: { proposalId },
+                fromBlock: from,
+                toBlock: to,
+              }).catch(() => [] as typeof allLogs),
+            ),
+          )
+          allLogs.push(...results.flat())
+          if (allLogs.length > 0 && i > 0) break // found events, stop early
+        }
+        const logs = allLogs
 
         const addrs = [...new Set(logs.map((l) => l.args.contender as `0x${string}`))]
         if (addrs.length === 0) {
@@ -170,7 +183,7 @@ export function useNomineePhaseCandidates(
 
 export function useMemberPhaseCandidates(proposalId: bigint) {
   const staticEntry = STATIC[`${proposalId.toString()}_member`]
-  const hasStatic = staticEntry !== undefined
+  const hasStatic = staticEntry !== undefined && staticEntry.length > 0
 
   const [candidates, setCandidates] = useState<Candidate[]>(
     hasStatic

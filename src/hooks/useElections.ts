@@ -173,11 +173,14 @@ export function useElections() {
         const allNominees = [...STATIC_ELECTIONS.filter((e) => e.phase === 'nominee'), ...liveNominees]
         const liveMembers = assignElectionIndex(allNominees, memberRaw)
 
-        const seen = new Set<bigint>()
+        // Deduplicate by proposalId+phase — nominee and member elections
+        // share the same proposalId, so proposalId alone is not unique.
+        const seen = new Set<string>()
         const merged: Election[] = []
         for (const e of [...liveNominees, ...liveMembers, ...STATIC_ELECTIONS]) {
-          if (!seen.has(e.proposalId)) {
-            seen.add(e.proposalId)
+          const key = `${e.proposalId}_${e.phase}`
+          if (!seen.has(key)) {
+            seen.add(key)
             merged.push(e)
           }
         }
