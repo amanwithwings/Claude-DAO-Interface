@@ -4,8 +4,14 @@ export const CORE_GOVERNOR = '0xf07DeD9dC292157749B6Fd268E37DF6EA38395B9' as con
 export const TREASURY_GOVERNOR = '0x789fC99093B09aD01C34DC7251D0C89ce743e5a4' as const
 export const ARB_TOKEN = '0x912CE59144191C1204E64559FE8253a0e49E6548' as const
 
+// Security Council election governors
+export const NOMINEE_ELECTION_GOVERNOR = '0x8a1cDA8dee421cD06023470608605934c16A05a0' as const
+export const MEMBER_ELECTION_GOVERNOR  = '0x467923B9AE90BDB36BA88eCA11604D45F13b712C' as const
+
 // Approximate block when ARB governance went live (March 2023)
 export const GOVERNANCE_START_BLOCK = 75_000_000n
+// Approximate block when SC elections went live (~late 2023)
+export const ELECTIONS_START_BLOCK = 150_000_000n
 
 export const GOVERNOR_ABI = parseAbi([
   'function state(uint256 proposalId) view returns (uint8)',
