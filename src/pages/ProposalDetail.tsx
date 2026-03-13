@@ -7,6 +7,8 @@ import {
   useReadContract,
 } from 'wagmi'
 import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
+import rehypeRaw from 'rehype-raw'
 import { CORE_GOVERNOR, TREASURY_GOVERNOR, GOVERNOR_ABI } from '../config/contracts'
 import { useProposals } from '../hooks/useProposals'
 import Navbar from '../components/Navbar'
@@ -221,8 +223,10 @@ export default function ProposalDetail() {
           </div>
 
           {/* Full description */}
-          <div className="prose prose-sm max-w-none text-gray-700">
-            <ReactMarkdown>{proposal.description}</ReactMarkdown>
+          <div className="prose prose-sm max-w-none prose-headings:font-semibold prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline">
+            <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
+              {proposal.description}
+            </ReactMarkdown>
           </div>
         </div>
       </main>
