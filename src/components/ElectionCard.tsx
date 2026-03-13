@@ -1,8 +1,8 @@
 import { useReadContract, useBlockNumber } from 'wagmi'
-import { GOVERNOR_ABI, NOMINEE_ELECTION_GOVERNOR, MEMBER_ELECTION_GOVERNOR } from '../config/contracts'
+import { Link } from 'react-router-dom'
+import { NOMINEE_ELECTION_ABI, MEMBER_ELECTION_ABI } from '../config/contracts'
 import { blocksToTime } from '../utils'
 import ProposalStateBadge from './ProposalStateBadge'
-import VoteBar from './VoteBar'
 import type { Election } from '../hooks/useElections'
 
 interface Props {
@@ -12,30 +12,47 @@ interface Props {
 export default function ElectionCard({ election }: Props) {
   const { data: currentBlock } = useBlockNumber()
 
+  const governorAbi = election.phase === 'nominee' ? NOMINEE_ELECTION_ABI : MEMBER_ELECTION_ABI
+
   const { data: stateIndex } = useReadContract({
     address: election.governorAddress,
-    abi: GOVERNOR_ABI,
+    abi: governorAbi,
     functionName: 'state',
     args: [election.proposalId],
   })
 
-  const { data: votes } = useReadContract({
+  // Nominee count (nominee phase) or topNominees length (member phase)
+  const { data: nomineeCount } = useReadContract({
     address: election.governorAddress,
-    abi: GOVERNOR_ABI,
-    functionName: 'proposalVotes',
+    abi: governorAbi,
+    functionName: election.phase === 'nominee' ? 'nomineeCount' : 'topNominees',
     args: [election.proposalId],
+    query: { enabled: election.phase === 'nominee' },
+  })
+  const { data: topNominees } = useReadContract({
+    address: election.governorAddress,
+    abi: governorAbi,
+    functionName: 'topNominees',
+    args: [election.proposalId],
+    query: { enabled: election.phase === 'member' },
   })
 
   const blocksLeft = currentBlock ? Number(election.endBlock - currentBlock) : null
   const isActive = stateIndex === 1
+  const isPending = stateIndex === 0
 
-  const arbiscanBase =
-    election.governorAddress.toLowerCase() === NOMINEE_ELECTION_GOVERNOR.toLowerCase()
-      ? `https://arbiscan.io/address/${NOMINEE_ELECTION_GOVERNOR}#writeContract`
-      : `https://arbiscan.io/address/${MEMBER_ELECTION_GOVERNOR}#writeContract`
+  const candidateCount =
+    election.phase === 'nominee'
+      ? nomineeCount !== undefined ? Number(nomineeCount) : null
+      : topNominees !== undefined ? (topNominees as `0x${string}`[]).length : null
+
+  const detailPath = `/elections/${election.phase}/${election.proposalId.toString()}`
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-4 hover:border-gray-300 transition-colors">
+    <Link
+      to={detailPath}
+      className="block bg-white rounded-xl border border-gray-200 p-4 hover:border-blue-300 hover:shadow-sm transition-all"
+    >
       <div className="flex items-start justify-between gap-3 mb-3">
         <div className="flex items-center gap-2 flex-wrap">
           <span
@@ -48,11 +65,16 @@ export default function ElectionCard({ election }: Props) {
             {election.phase === 'nominee' ? 'Nominee Phase' : 'Member Election'}
           </span>
           <ProposalStateBadge stateIndex={stateIndex} />
+          {isActive && (
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700 animate-pulse">
+              Live
+            </span>
+          )}
         </div>
 
         {blocksLeft !== null && (
           <span className="text-xs text-gray-400 shrink-0">
-            {blocksToTime(blocksLeft)}
+            {blocksLeft > 0 ? blocksToTime(blocksLeft) : 'Ended'}
           </span>
         )}
       </div>
@@ -61,30 +83,21 @@ export default function ElectionCard({ election }: Props) {
         {election.title || (election.phase === 'nominee' ? 'Nominee Election' : 'Member Election')}
       </h3>
 
-      {votes && (
-        <div className="mb-3">
-          <VoteBar
-            forVotes={votes[1]}
-            againstVotes={votes[0]}
-            abstainVotes={votes[2]}
-            compact
-          />
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3 text-xs text-gray-500">
+          {candidateCount !== null && (
+            <span>
+              {election.phase === 'nominee' ? `${candidateCount} nominee${candidateCount !== 1 ? 's' : ''}` : `${candidateCount} nominee${candidateCount !== 1 ? 's' : ''}`}
+            </span>
+          )}
+          {(isActive || isPending) && (
+            <span className="text-blue-600 font-medium">View & Vote →</span>
+          )}
+          {!isActive && !isPending && (
+            <span className="text-gray-400">View results →</span>
+          )}
         </div>
-      )}
-
-      {isActive && (
-        <a
-          href={arbiscanBase}
-          target="_blank"
-          rel="noreferrer"
-          className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 font-medium"
-        >
-          Vote on Arbiscan
-          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-          </svg>
-        </a>
-      )}
-    </div>
+      </div>
+    </Link>
   )
 }

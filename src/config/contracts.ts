@@ -26,6 +26,51 @@ export const GOVERNOR_ABI = parseAbi([
   'event ProposalCreated(uint256 proposalId, address proposer, address[] targets, uint256[] values, string[] signatures, bytes[] calldatas, uint256 startBlock, uint256 endBlock, string description)',
 ])
 
+export const NOMINEE_ELECTION_ABI = parseAbi([
+  // Standard governor reads
+  'function state(uint256 proposalId) view returns (uint8)',
+  'function proposalSnapshot(uint256 proposalId) view returns (uint256)',
+  'function proposalDeadline(uint256 proposalId) view returns (uint256)',
+  'function hasVoted(uint256 proposalId, address account) view returns (bool)',
+  'function getVotes(address account, uint256 blockNumber) view returns (uint256)',
+  // Nominee-phase specific reads
+  'function nominees(uint256 proposalId) view returns (address[])',
+  'function nomineeCount(uint256 proposalId) view returns (uint256)',
+  'function isNominee(uint256 proposalId, address contender) view returns (bool)',
+  'function votesReceived(uint256 proposalId, address contender) view returns (uint256)',
+  'function votesUsed(uint256 proposalId, address account) view returns (uint256)',
+  'function compliantNominees(uint256 proposalId) view returns (address[])',
+  'function compliantNomineeCount(uint256 proposalId) view returns (uint256)',
+  'function isContender(uint256 proposalId, address possibleContender) view returns (bool)',
+  // Voting (params = abi.encode(address contender, uint256 votes))
+  'function castVoteWithReasonAndParams(uint256 proposalId, uint8 support, string calldata reason, bytes calldata params) returns (uint256)',
+  // Events
+  'event ProposalCreated(uint256 proposalId, address proposer, address[] targets, uint256[] values, string[] signatures, bytes[] calldatas, uint256 startBlock, uint256 endBlock, string description)',
+  'event ContenderAdded(uint256 indexed proposalId, address indexed contender)',
+  'event NewNominee(uint256 indexed proposalId, address indexed nominee)',
+  'event NomineeExcluded(uint256 indexed proposalId, address indexed nominee)',
+])
+
+export const MEMBER_ELECTION_ABI = parseAbi([
+  // Standard governor reads
+  'function state(uint256 proposalId) view returns (uint8)',
+  'function proposalSnapshot(uint256 proposalId) view returns (uint256)',
+  'function proposalDeadline(uint256 proposalId) view returns (uint256)',
+  'function hasVoted(uint256 proposalId, address account) view returns (bool)',
+  'function getVotes(address account, uint256 blockNumber) view returns (uint256)',
+  // Member-phase specific reads
+  'function topNominees(uint256 proposalId) view returns (address[])',
+  'function weightReceived(uint256 proposalId, address nominee) view returns (uint256)',
+  'function votesUsed(uint256 proposalId, address account) view returns (uint256)',
+  'function fullWeightVotingDeadline(uint256 proposalId) view returns (uint256)',
+  'function fullWeightDuration() view returns (uint256)',
+  // Voting (params = abi.encode(address nominee, uint256 votes))
+  'function castVoteWithReasonAndParams(uint256 proposalId, uint8 support, string calldata reason, bytes calldata params) returns (uint256)',
+  // Events
+  'event ProposalCreated(uint256 proposalId, address proposer, address[] targets, uint256[] values, string[] signatures, bytes[] calldatas, uint256 startBlock, uint256 endBlock, string description)',
+  'event VoteCastForNominee(uint256 indexed proposalId, address indexed voter, address indexed nominee, uint256 votes, uint256 weight, uint256 totalUsedVotes, uint256 usableVotes, uint256 weightReceived)',
+])
+
 export const ARB_TOKEN_ABI = parseAbi([
   'function delegate(address delegatee)',
   'function delegates(address account) view returns (address)',
