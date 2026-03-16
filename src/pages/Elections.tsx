@@ -44,10 +44,24 @@ export default function Elections() {
           </div>
         )}
 
-        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-blue-800 text-sm mb-6">
-          <strong>Voting:</strong> Connect your wallet and click an active election card to vote.
-          Nominee phase: push contenders past the 0.2% ARB threshold.
-          Member phase: allocate your voting power across nominees to elect 6 Security Council seats.
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-blue-800 text-sm mb-6 space-y-1">
+          <p>
+            <strong>Election #5 timeline:</strong>{' '}
+            Contender submissions open <strong>Mar 15 – Mar 22, 2026 (12:00 UTC)</strong>.
+            Nominee voting opens <strong>Mar 22</strong> — wallet voting will be enabled then.{' '}
+            <a
+              href="https://forum.arbitrum.foundation/t/march-2026-security-council-election-contender-submission/30654"
+              target="_blank"
+              rel="noreferrer"
+              className="underline"
+            >
+              Forum post →
+            </a>
+          </p>
+          <p className="text-blue-700">
+            Nominee phase: push contenders past the 0.2% ARB threshold.
+            Member phase: allocate your voting power across nominees to elect 6 Security Council seats.
+          </p>
         </div>
 
         {elections.length === 0 && !refreshing && (

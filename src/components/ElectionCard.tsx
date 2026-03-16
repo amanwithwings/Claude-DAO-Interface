@@ -35,9 +35,18 @@ export default function ElectionCard({ election }: Props) {
     query: { enabled: election.phase === 'member' },
   })
 
+  // Fetch deadline on-chain — election.endBlock from event args can be 0 for pending proposals.
+  // proposalDeadline() returns the authoritative L1 block deadline from contract storage.
+  const { data: deadline } = useReadContract({
+    address: election.governorAddress,
+    abi: governorAbi,
+    functionName: 'proposalDeadline',
+    args: [election.proposalId],
+  })
+
   // election.endBlock is an L1 Ethereum block number — convert to wall-clock time
   // without an L1 RPC call using genesis timestamp math.
-  const timeDisplay = l1BlockToTime(election.endBlock)
+  const timeDisplay = deadline !== undefined ? l1BlockToTime(deadline) : '…'
   const isActive = stateIndex === 1
   const isPending = stateIndex === 0
 
