@@ -17,8 +17,12 @@ export interface Election {
   governorAddress: `0x${string}`
   title: string
   description: string
+  /** L1 Ethereum block — voting window start (as stored in Governor params). NOT for getLogs. */
   startBlock: bigint
+  /** L1 Ethereum block — voting window end. NOT for getLogs. */
   endBlock: bigint
+  /** L2 Arbitrum block where the ProposalCreated log was emitted. Use this for getLogs ranges. */
+  emittedBlock: bigint
 }
 
 const PROPOSAL_CREATED = parseAbiItem(
@@ -37,6 +41,7 @@ const STATIC_CUTOFF = BigInt(staticData.cutoffBlock)
 type StaticElection = {
   proposalId: string; phase: string; electionIndex: number; governorAddress: string
   title: string; description: string; startBlock: string; endBlock: string
+  emittedBlock?: string
 }
 
 const STATIC_ELECTIONS: Election[] = (staticData.elections as StaticElection[]).map((e) => ({
@@ -48,6 +53,7 @@ const STATIC_ELECTIONS: Election[] = (staticData.elections as StaticElection[]).
   description: e.description,
   startBlock: BigInt(e.startBlock),
   endBlock: BigInt(e.endBlock),
+  emittedBlock: e.emittedBlock ? BigInt(e.emittedBlock) : 0n,
 }))
 
 // ---------------------------------------------------------------------------
@@ -100,8 +106,9 @@ async function fetchElectionLogs(
             governorAddress: address,
             title: parseTitle(description ?? ''),
             description: description ?? '',
-            startBlock,
-            endBlock,
+            startBlock,                  // L1 block — voting window param
+            endBlock,                    // L1 block — voting window param
+            emittedBlock: log.blockNumber ?? 0n,  // L2 block — actual log location
           })
         }
       }
@@ -114,11 +121,27 @@ async function fetchElectionLogs(
   throw lastError ?? new Error('All RPC endpoints failed')
 }
 
+// ---------------------------------------------------------------------------
+// Dedup key: proposalId + phase (same proposalId can appear in both governors)
+// ---------------------------------------------------------------------------
+function electionKey(e: Pick<Election, 'proposalId' | 'phase'>) {
+  return `${e.proposalId.toString()}-${e.phase}`
+}
+
 function assignElectionIndex(nominees: Election[], members: Omit<Election, 'electionIndex'>[]): Election[] {
-  const sortedNominees = [...nominees].sort((a, b) => Number(a.startBlock - b.startBlock))
+  // Sort by emittedBlock (L2), falling back to startBlock (L1) if emittedBlock missing
+  const sortedNominees = [...nominees].sort((a, b) => {
+    const aBlock = a.emittedBlock > 0n ? a.emittedBlock : a.startBlock
+    const bBlock = b.emittedBlock > 0n ? b.emittedBlock : b.startBlock
+    return Number(aBlock - bBlock)
+  })
 
   return members.map((m) => {
-    const filtered = sortedNominees.filter((n) => n.startBlock <= m.startBlock)
+    const mBlock = m.emittedBlock > 0n ? m.emittedBlock : m.startBlock
+    const filtered = sortedNominees.filter((n) => {
+      const nBlock = n.emittedBlock > 0n ? n.emittedBlock : n.startBlock
+      return nBlock <= mBlock
+    })
     const match = filtered[filtered.length - 1]
     return { ...m, electionIndex: match?.electionIndex ?? 0 }
   })
@@ -159,12 +182,14 @@ export function useElections() {
 
         if (cancelled) return
 
-        // Assign electionIndex to live nominee proposals
+        // Assign electionIndex to live nominee proposals (continue from static max)
         const maxStaticIndex = STATIC_ELECTIONS
           .filter((e) => e.phase === 'nominee')
           .reduce((max, e) => Math.max(max, e.electionIndex), -1)
 
-        const sortedLiveNominees = [...nomineeRaw].sort((a, b) => Number(a.startBlock - b.startBlock))
+        const sortedLiveNominees = [...nomineeRaw].sort((a, b) =>
+          Number((a.emittedBlock ?? a.startBlock) - (b.emittedBlock ?? b.startBlock))
+        )
         const liveNominees: Election[] = sortedLiveNominees.map((n, i) => ({
           ...n,
           electionIndex: maxStaticIndex + 1 + i,
@@ -173,15 +198,23 @@ export function useElections() {
         const allNominees = [...STATIC_ELECTIONS.filter((e) => e.phase === 'nominee'), ...liveNominees]
         const liveMembers = assignElectionIndex(allNominees, memberRaw)
 
-        const seen = new Set<bigint>()
+        // Deduplicate by (proposalId + phase) — same proposalId can appear in both governors
+        const seen = new Set<string>()
         const merged: Election[] = []
         for (const e of [...liveNominees, ...liveMembers, ...STATIC_ELECTIONS]) {
-          if (!seen.has(e.proposalId)) {
-            seen.add(e.proposalId)
+          const key = electionKey(e)
+          if (!seen.has(key)) {
+            seen.add(key)
             merged.push(e)
           }
         }
-        merged.sort((a, b) => Number(b.startBlock - a.startBlock))
+
+        // Sort by electionIndex desc, nominee before member within same index
+        merged.sort((a, b) => {
+          if (b.electionIndex !== a.electionIndex) return b.electionIndex - a.electionIndex
+          // nominee phase first (so it appears on the left in the 2-column grid)
+          return a.phase === 'nominee' ? -1 : 1
+        })
         setElections(merged)
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : 'Failed to fetch live elections')

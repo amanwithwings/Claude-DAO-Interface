@@ -70,8 +70,11 @@ function parseLogs(logs, phase, governorAddress) {
       proposer: l.args.proposer,
       title: parseTitle(l.args.description ?? ''),
       description: l.args.description ?? '',
+      // L1 Ethereum block numbers — stored as voting window params, NOT for getLogs
       startBlock: l.args.startBlock.toString(),
       endBlock: l.args.endBlock.toString(),
+      // L2 Arbitrum block where the ProposalCreated log was emitted — use this for getLogs
+      emittedBlock: l.blockNumber.toString(),
       phase,
       governorAddress,
     }))
@@ -102,23 +105,24 @@ async function main() {
   const nomineeElections = parseLogs(nomineeLogs, 'nominee', NOMINEE_ELECTION_GOVERNOR)
   const memberElections  = parseLogs(memberLogs,  'member',  MEMBER_ELECTION_GOVERNOR)
 
-  // Assign electionIndex: nominee proposals sorted by startBlock get index 0,1,2…
-  // Member proposals are matched to nominee elections by proximity of startBlock.
-  const sortedNominees = [...nomineeElections].sort((a, b) => Number(BigInt(a.startBlock) - BigInt(b.startBlock)))
+  // Assign electionIndex using emittedBlock (L2) — monotonically increasing, reliable ordering
+  const sortedNominees = [...nomineeElections].sort((a, b) => Number(BigInt(a.emittedBlock) - BigInt(b.emittedBlock)))
   sortedNominees.forEach((e, i) => { e.electionIndex = i })
 
-  // For member elections, match to closest preceding nominee election
-  const sortedMembers = [...memberElections].sort((a, b) => Number(BigInt(a.startBlock) - BigInt(b.startBlock)))
+  // Match member elections to the closest preceding nominee election by emittedBlock
+  const sortedMembers = [...memberElections].sort((a, b) => Number(BigInt(a.emittedBlock) - BigInt(b.emittedBlock)))
   sortedMembers.forEach((me) => {
-    // Find the nominee election with the highest startBlock <= this member's startBlock
-    const match = sortedNominees
-      .filter((ne) => BigInt(ne.startBlock) <= BigInt(me.startBlock))
-      .at(-1)
+    const filtered = sortedNominees.filter((ne) => BigInt(ne.emittedBlock) <= BigInt(me.emittedBlock))
+    const match = filtered[filtered.length - 1]
     me.electionIndex = match ? match.electionIndex : 0
   })
 
   const elections = [...nomineeElections, ...memberElections]
-  elections.sort((a, b) => Number(BigInt(b.startBlock) - BigInt(a.startBlock)))
+  // Sort newest first by emittedBlock (L2), then nominee before member within same index
+  elections.sort((a, b) => {
+    if (b.electionIndex !== a.electionIndex) return b.electionIndex - a.electionIndex
+    return a.phase === 'nominee' ? -1 : 1
+  })
 
   const out = {
     cutoffBlock: toBlock.toString(),
