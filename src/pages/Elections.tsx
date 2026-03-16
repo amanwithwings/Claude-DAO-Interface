@@ -44,10 +44,10 @@ export default function Elections() {
           </div>
         )}
 
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-amber-800 text-sm mb-6">
-          <strong>Voting note:</strong> Security Council elections use a custom voting mechanism.
-          Standard castVote is disabled — use the "Vote on Arbiscan" link on active elections to cast
-          your vote directly on-chain.
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-blue-800 text-sm mb-6">
+          <strong>Voting:</strong> Connect your wallet and click an active election card to vote.
+          Nominee phase: push contenders past the 0.2% ARB threshold.
+          Member phase: allocate your voting power across nominees to elect 6 Security Council seats.
         </div>
 
         {elections.length === 0 && !refreshing && (
