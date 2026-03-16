@@ -1,0 +1,939 @@
+{
+  "cutoffBlock": "436431155",
+  "candidates": {
+    "9884312882007072108698168190939029598205394324410212982018382023912253424451_nominee": [
+      {
+        "address": "0x3F6E511507A082B3DBFC955480EA97D33F3488ED",
+        "votes": "9369469716051680329372153",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0xA88BB92eB30113d3f4175Eb02BE45Fa232E22472",
+        "votes": "9369469716051680329372153",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0x882c6FCb3D358b9d70B97c6999159cea64168B6F",
+        "votes": "9369469716051680329372153",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0xAF38Ef9B49A1Eda56B707dc3c0302a1f69425fA5",
+        "votes": "9369469716051680329372153",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0x9A925D87958925C4A7c7ab0Ac2F915451c0496dE",
+        "votes": "9369469716051680329372153",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0x913Af9a61d1a59aA5D21CE9Bbf7Fd44Ed61dB4ce",
+        "votes": "9369469716051680329372153",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0x3A8b161E60Bf8f0b1fa4d14A4cDA3C5F444e9cd6",
+        "votes": "9369469716051680329372153",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0xBB6F6a8AF43ea7Fe787dfF8E79d70f411e217783",
+        "votes": "9369469716051680329372153",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0x875573B973F7E9Ca54eb34a59180C70eE1128208",
+        "votes": "9369469716051680329372153",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0x0cd9e52891A0a48d45b0C61A31086be8361Ef157",
+        "votes": "9369469716051680329372153",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0xf8d47784EE7F3eBD40Bd83CB822e3161742B1988",
+        "votes": "9369469716051680329372153",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0x33ddb82e68940f0e4C1050885BcE8faF5Ddd1b93",
+        "votes": "9369469716051680329372153",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0xe2e9d5B97d8C0457B1cf80BC93802bce4DF03e33",
+        "votes": "9369469716051680329372153",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0xF948e06C29dB647ffE21b9FAB9d162c457CD6828",
+        "votes": "7940117635928180450322694",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0x5E719C0d877095ba11df710b1F367dC38BB06c8d",
+        "votes": "2271772701623858334481992",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0x391cF05fb66DF7dD46E34da0Ebf9c74e3b663c45",
+        "votes": "81385013581277228281031",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0x1049f9908005B303D2c93A3B9Cbe10f3b49d7943",
+        "votes": "27797821273462067820184",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0x4D4AC65513fEe380c596ac9EdfaC588782831bdf",
+        "votes": "2000000000000000000",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0x8243b3385372b95be03268A4De191009e9E7fe7f",
+        "votes": "0",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0x839395e20bbB182fa440d08F850E6c7A8f6F0780",
+        "votes": "0",
+        "isNominee": false,
+        "isExcluded": false
+      }
+    ],
+    "105950663509958437523992793185319101898618751949859789080237826040354365699363_nominee": [
+      {
+        "address": "0xD8D4cEC103c0B6d7166405F0EbD7087C75a1528E",
+        "votes": "8489538152614812520853576",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0x475816ca2a31D601B4e336f5c2418A67978aBf09",
+        "votes": "8489538152614812520853576",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0x98E24e308c4B7cdADcf4d116B2B8939a21420bA1",
+        "votes": "8489538152614812520853576",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0x342EBaca3ACC54d6f5Ee78073FeC4af07f42B94e",
+        "votes": "8489538152614812520853576",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0x0275b3D54a5dDbf8205A75984796eFE8b7357Bae",
+        "votes": "8489538152614812520853576",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0x9316ca66f5f936E3239e4fD2AAAEA5C7b6f3C4cC",
+        "votes": "8489538152614812520853576",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0x1e14a2aF06235C1De63eDFC0c1523F0a31508a56",
+        "votes": "8489538152614812520853576",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0x95892b6aCe907c37453E3995CF426B6068084f26",
+        "votes": "8489538152614812520853576",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0xeEe3Fb3B792C7DDbB6aEF0C440FBC621f4d6fe2D",
+        "votes": "8489538152614812520853576",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0xEFA6e02047eDc1B55C93bB6B320B9728baA97Bb6",
+        "votes": "8489538152614812520853576",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0xBE21796184d2Ca3F61F091ED47fDd128775db6BE",
+        "votes": "8489538152614812520853576",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0xBBD2E01eFB88ce00F8f5b6B9a696966070089392",
+        "votes": "8489538152614812520853576",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0x2c581DBcd7BBe22e366724654BDdcaA734158226",
+        "votes": "8489538152614812520853576",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0x5DaB09a6C2dd232c7F15881C14E1616AE1751c97",
+        "votes": "4772361464102292054317055",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0x1af85D2f437F338c2AF668c1BC7cb81d13A36B5d",
+        "votes": "4016553769319311498857371",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0x748a1D2EDd08245d0A139d3DFFfEe92312A25C26",
+        "votes": "940933199476578689252566",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0x6446aD9821021Eeb9f85B8a18B0153d58166d161",
+        "votes": "50161416617581430716219",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0xF948e06C29dB647ffE21b9FAB9d162c457CD6828",
+        "votes": "13983266255984002747197",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0x662767455889320B33862a9eC64feDdf127282f7",
+        "votes": "135042482501783797949",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0x4D4AC65513fEe380c596ac9EdfaC588782831bdf",
+        "votes": "1482853062058760147",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0x1B1e924A0A9c86a9023BE9791bb81ECFb8CC4011",
+        "votes": "1200000000000000000",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0x222D4A324731C0ADD5962e3259b6D7226c6c67Cb",
+        "votes": "0",
+        "isNominee": false,
+        "isExcluded": false
+      }
+    ],
+    "101972409345429635102932864858336950935562280417363255037538007721008874034556_nominee": [
+      {
+        "address": "0x8688515028955734350067695939423222009623",
+        "votes": "8588214973437820650764282",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0x1716C1C037e4968D5A06d4d080904F9B7a6508f2",
+        "votes": "8588214973437820650764282",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0xeA4A4A886aCA47DD0167B4aEE5B1345e18D20Ee5",
+        "votes": "8588214973437820650764282",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0x882c6FCb3D358b9d70B97c6999159cea64168B6F",
+        "votes": "8588214973437820650764282",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0xEFA6e02047eDc1B55C93bB6B320B9728baA97Bb6",
+        "votes": "8588214973437820650764282",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0x00e3F728a3a2949cd9E0b7524b3068Ef363AF059",
+        "votes": "8588214973437820650764282",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0xfbdf369ae6eA1EBc893bF096469Ea065E8dFa00a",
+        "votes": "8588214973437820650764282",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0x3E286452b1C66abB08Eb5494c3894F40aB5a59AF",
+        "votes": "8588214973437820650764282",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0xafc7805c640C4A9E5D28f6A5Eae23b50e59B831c",
+        "votes": "8588214973437820650764282",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0x6Ca0aAD68D2375f0B5cE01040CF265F8E1ecdb2b",
+        "votes": "8588214973437820650764282",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0x33ddb82e68940f0e4C1050885BcE8faF5Ddd1b93",
+        "votes": "8588214973437820650764282",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0xe2e9d5B97d8C0457B1cf80BC93802bce4DF03e33",
+        "votes": "8588214973437820650764282",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0xE93c78C91F3F12f7c9Ef86b711b369D70607600C",
+        "votes": "8588214973437820650764282",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0x47272924B5F10fCbA91C76B8Fa28d913b6DF65E2",
+        "votes": "7684694773779028799127292",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0x3239af1CB6d4CE3bca0F785763390ab78395D71A",
+        "votes": "5813707842587467173425902",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0x3F6E511507A082B3DBFC955480EA97D33F3488ED",
+        "votes": "4279396994446754156575669",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0xeFaa1C2dCbf8B9c30511ee37f9660f4b59982798",
+        "votes": "4276644662530000000000000",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0x093F1f3Af6f573b854144e8842a5b20276b4512B",
+        "votes": "4251219623337151166766691",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0x748a1D2EDd08245d0A139d3DFFfEe92312A25C26",
+        "votes": "4211567646478641044525530",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0x58A5f520FF7A6F59863e8a73b066A975799d5d48",
+        "votes": "2993643473716721456048040",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0x382ba0C647e8e2CEdF3846603ec459Ff72321A6E",
+        "votes": "2510868767250772197143237",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0xDC7737e0CE0b91AF0094d9C6245c31C8dC61DaAa",
+        "votes": "1965655000000000000000000",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0x0b17eBF1d97983a925f3Acc2dC6E4Be13a24A259",
+        "votes": "971397961086248422988306",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0x86A5E695b589bf10fBEceE946F00362b6Be9BD39",
+        "votes": "924691331265000000000000",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0x00aC614D118F972A50973EE5B9D70C3594eb4c2D",
+        "votes": "834677899343007048764310",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0x22AB891922f566F17B9827d016C2003Da69abAb9",
+        "votes": "450000000000000000000000",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0x695279F65338C687cbe5D54833f0CF9b1DF6D993",
+        "votes": "277717630977915134624625",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0x010DC5440ad49f9Ec0Dd325b622d9FD225944ee4",
+        "votes": "232777974532013978584183",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0xB962bfF38392146bd80d477C2F11FBec59FCb11B",
+        "votes": "43330582815877195064853",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0x59c8535419BbCb8AdFFDB3C835435E907e3B183B",
+        "votes": "35172633379994633979633",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0x8583d6B8E5EE6d5876955Dd745C551E851215679",
+        "votes": "750000000000000000000",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0x1B1e924A0A9c86a9023BE9791bb81ECFb8CC4011",
+        "votes": "750000000000000000000",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0x7f1aE4Cc24D79161B3a5DB05a3Dbc39d00EB2709",
+        "votes": "200000000000000000000",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0x1046a7b8d2320C024f0209e95bfb1344F0bA8ac4",
+        "votes": "100000000000000000000",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0x8F4d1Da5ff9Eb2fE282D66a9536F371b6A54F76F",
+        "votes": "0",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0x09dD35BbF83e64E90F998e54C9D0ecB9B0E614B5",
+        "votes": "0",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0xb5B069370Ef24BC67F114e185D185063CE3479f8",
+        "votes": "0",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0xb1040D3ce131b3204E5229C80a8d5Ae271B2ef09",
+        "votes": "0",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0xC463C313Df9907E9D47Ed33E63a48C4b20cF7b88",
+        "votes": "0",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0xa3706296cbe8a8B35391B155B531f785735e3D62",
+        "votes": "0",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0x1Cd921f2e9c993a92F7C1B7Bf400EdC919a43808",
+        "votes": "0",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0x34D254ac20731Ae30731677801986C74Be543c03",
+        "votes": "0",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0x2b1b769E885599Ca81A663f789C464f8eCEe12e2",
+        "votes": "0",
+        "isNominee": false,
+        "isExcluded": false
+      }
+    ],
+    "42524710257895482033293584464762477376427316183960646909542733545381165923770_nominee": [
+      {
+        "address": "0x559cdf1346dd71315913278181A59AF17E1721bA",
+        "votes": "5431189182135375673903885",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0xf29722a899Aa9FD0836076CA1dA64212c451453C",
+        "votes": "5431189182135375673903885",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0xa0683d725420e2F75415806352Cd9c3fE10Fa960",
+        "votes": "5431189182135375673903885",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0xaa0beF27c7Ca1A998460C7041De486921710A7fC",
+        "votes": "5431189182135375673903885",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0x61CCd62854Cd4211324737caC64f8cE3126bA777",
+        "votes": "5431189182135375673903885",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0xee7Fb91D5b776C326a728dc70e917F82d6809E3C",
+        "votes": "5431189182135375673903885",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0xe2e9d5B97d8C0457B1cf80BC93802bce4DF03e33",
+        "votes": "5431189182135375673903885",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0x914B7c77037951EBAC9e4046093e9D1C6daE1332",
+        "votes": "5431189182135375673903885",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0xe40D80Bd58CEE55DCC2598724d7F1e03E206581D",
+        "votes": "5431189182135375673903885",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0xd1B132e0eD154e23BA5DE867ea06FB788b1d533d",
+        "votes": "5431189182135375673903885",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0xB3b60932E598fe946169EC209A197184Bad760B7",
+        "votes": "5431189182135375673903885",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0x97cab8EE5547A6e4AFFaD689a25d11B6dD920EF8",
+        "votes": "5431189182135375673903885",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0x33ddb82e68940f0e4C1050885BcE8faF5Ddd1b93",
+        "votes": "5431189182135375673903885",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0x59c8535419BbCb8AdFFDB3C835435E907e3B183B",
+        "votes": "5431189182135375673903885",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0x0275b3D54a5dDbf8205A75984796eFE8b7357Bae",
+        "votes": "5431189182135375673903885",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0x5E841f1Eb0AEC2FE26D6824c83bCA2607Fba6FeC",
+        "votes": "5431189182135375673903885",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0x2aCdF1317915A1C6aCE88B9EcCae99FC9CfEBa81",
+        "votes": "5431189182135375673903885",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0xAC9ba72fb61aA7c31A95df0A8b6ebA6f41EF875e",
+        "votes": "5431189182135375673903885",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0x093B56E26a6795fc60c8c84285aEBe451D4fbe75",
+        "votes": "5431189182135375673903885",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0x475816ca2a31D601B4e336f5c2418A67978aBf09",
+        "votes": "5431189182135375673903885",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0x748a1D2EDd08245d0A139d3DFFfEe92312A25C26",
+        "votes": "5431189182135375673903885",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0xb5B069370Ef24BC67F114e185D185063CE3479f8",
+        "votes": "5431189182135375673903885",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0x3e9fB14733F0a8D001AE4b52E93c2707ca875AE6",
+        "votes": "1021629959395160527450320",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0x170fA93844c298Ff496475AE643F80c0E7f25117",
+        "votes": "28643168109784076527005",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0xC6820fFD46a3D8045fD28c9f340a9011307f0216",
+        "votes": "17261091038279137399327",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0x585a003aA0b446C0F9baD7b3b0BAc5A809988588",
+        "votes": "3958357445999389348302",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0x47526FDDBA0A5a7ef001FaaD4836b771B3e92522",
+        "votes": "2710000000000000000000",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0xa36e191e9c08ecAA86408000aDd327201e186aCe",
+        "votes": "698797661265412107911",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0xb3c961FDE445F1A1e42F0f0ba434A8215bCE374F",
+        "votes": "408874324703416905264",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0xCD2E7E057D81f32919De0fc04952B3b13eC57419",
+        "votes": "365107288483280567235",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0xb1040D3ce131b3204E5229C80a8d5Ae271B2ef09",
+        "votes": "275191502128314368918",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0x396d0b1F18425dD8B68deaD6B1CE9b80931Bc3DD",
+        "votes": "207000000000000000000",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0x9B3aEdDdfC03014eef28322ffCB815Ab555Aa94B",
+        "votes": "194912888318243506220",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0xe656179eFff775A795173081552B34bFA27BFE5e",
+        "votes": "102865195602200728462",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0xC463C313Df9907E9D47Ed33E63a48C4b20cF7b88",
+        "votes": "76751790727681013176",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0x2E24829CaBc96d3b6Fe6c1c57f3aaa5D80832fc9",
+        "votes": "54852453733948855096",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0xF57672e1E6ED61951ccf359986ac5C0D10a1F15C",
+        "votes": "2891986743432532130",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0xd1b3Dd4C3442d24105550886Fd6EB38dD9592356",
+        "votes": "2000000000000000000",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0xd174ad0D1E36c7a60CD922E966354095233f8F23",
+        "votes": "0",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0x99b94fde4bD76B8ec98a67C6e5e3ab2587032213",
+        "votes": "0",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0xdf6711f7fEc85aF82A3626B443A5a32AE13cC3E3",
+        "votes": "0",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0xdf2e7A58ac62c29f8A1D15B2c51Ca90b2197d169",
+        "votes": "0",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0x8142Cf418d00a12874C3864f9B185051D0865Df9",
+        "votes": "0",
+        "isNominee": false,
+        "isExcluded": false
+      },
+      {
+        "address": "0x0Be37874612CbD0f18E2b38FBd11fbc443ad2a0c",
+        "votes": "0",
+        "isNominee": false,
+        "isExcluded": false
+      }
+    ],
+    "9884312882007072108698168190939029598205394324410212982018382023912253424451_member": [
+      {
+        "address": "0x875573B973F7E9Ca54eb34a59180C70eE1128208",
+        "votes": "27533039693722577072450537",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0x882c6FCb3D358b9d70B97c6999159cea64168B6F",
+        "votes": "25161898769131030610039183",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0x33ddb82e68940f0e4C1050885BcE8faF5Ddd1b93",
+        "votes": "24395885691444958132377667",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0xe2e9d5B97d8C0457B1cf80BC93802bce4DF03e33",
+        "votes": "23238207170627885946152522",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0xf8d47784EE7F3eBD40Bd83CB822e3161742B1988",
+        "votes": "23192651217430927019971235",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0x0cd9e52891A0a48d45b0C61A31086be8361Ef157",
+        "votes": "22464408449517596306423882",
+        "isNominee": true,
+        "isExcluded": false
+      }
+    ],
+    "105950663509958437523992793185319101898618751949859789080237826040354365699363_member": [
+      {
+        "address": "0xD8D4cEC103c0B6d7166405F0EbD7087C75a1528E",
+        "votes": "30573486794995854117146808",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0x0275b3D54a5dDbf8205A75984796eFE8b7357Bae",
+        "votes": "29983284857303465692559763",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0xBBD2E01eFB88ce00F8f5b6B9a696966070089392",
+        "votes": "28527402602389608473667568",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0x475816ca2a31D601B4e336f5c2418A67978aBf09",
+        "votes": "27464033519802402798836088",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0xeEe3Fb3B792C7DDbB6aEF0C440FBC621f4d6fe2D",
+        "votes": "20539542421667579527106801",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0x9316ca66f5f936E3239e4fD2AAAEA5C7b6f3C4cC",
+        "votes": "20489400994732784736371691",
+        "isNominee": true,
+        "isExcluded": false
+      }
+    ],
+    "101972409345429635102932864858336950935562280417363255037538007721008874034556_member": [
+      {
+        "address": "0xe2e9d5B97d8C0457B1cf80BC93802bce4DF03e33",
+        "votes": "21621760922201493030210223",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0x3E286452b1C66abB08Eb5494c3894F40aB5a59AF",
+        "votes": "17222131266435317874737684",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0x33ddb82e68940f0e4C1050885BcE8faF5Ddd1b93",
+        "votes": "16340944947277006262634660",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0x1716C1C037e4968D5A06d4d080904F9B7a6508f2",
+        "votes": "13261217721303350410855241",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0xeA4A4A886aCA47DD0167B4aEE5B1345e18D20Ee5",
+        "votes": "13146542671272424899399432",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0x882c6FCb3D358b9d70B97c6999159cea64168B6F",
+        "votes": "13132807947288696597633097",
+        "isNominee": true,
+        "isExcluded": false
+      }
+    ],
+    "42524710257895482033293584464762477376427316183960646909542733545381165923770_member": [
+      {
+        "address": "0x0275b3D54a5dDbf8205A75984796eFE8b7357Bae",
+        "votes": "22305321589711730663546989",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0xa0683d725420e2F75415806352Cd9c3fE10Fa960",
+        "votes": "21777606240272120096919895",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0x475816ca2a31D601B4e336f5c2418A67978aBf09",
+        "votes": "19695650879902160470135675",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0xee7Fb91D5b776C326a728dc70e917F82d6809E3C",
+        "votes": "19616653342413624626795647",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0xB3b60932E598fe946169EC209A197184Bad760B7",
+        "votes": "17155069282923405090598105",
+        "isNominee": true,
+        "isExcluded": false
+      },
+      {
+        "address": "0xe40D80Bd58CEE55DCC2598724d7F1e03E206581D",
+        "votes": "17094327057251199091400573",
+        "isNominee": true,
+        "isExcluded": false
+      }
+    ]
+  }
+}

@@ -192,6 +192,7 @@ export default function ProposalDetail() {
           )}
 
           {/* Voting action */}
+          {(isActive || hasVoted) && (
           <div className="mb-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
             {!isConnected ? (
               <p className="text-sm text-gray-500">Connect your wallet to vote on this proposal.</p>
@@ -221,6 +222,7 @@ export default function ProposalDetail() {
               </div>
             )}
           </div>
+          )}
 
           {/* Full description */}
           <div className="prose prose-sm max-w-none prose-headings:font-semibold prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline">
