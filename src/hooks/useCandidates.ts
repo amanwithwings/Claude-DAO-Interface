@@ -1,23 +1,28 @@
 /**
- * Fetches candidates (contenders/nominees) for a Security Council election proposal,
- * along with their individual vote/weight counts.
+ * Fetches candidates (contenders/nominees) for a Security Council election proposal.
  *
- * Nominee phase:  candidates are "contenders" → fetched via ContenderAdded events.
- *                 Each gets votesReceived(proposalId, address).
+ * IMPORTANT: Arbitrum governance uses L1 Ethereum block numbers as proposal
+ * startBlock/endBlock params. ContenderAdded events are emitted at L2 Arbitrum
+ * block numbers. Always use `emittedBlock` (L2) for getLogs ranges, never
+ * startBlock/endBlock from the Election object.
  *
- * Member phase:   candidates are "nominees" → fetched from topNominees(proposalId) view.
- *                 Each gets weightReceived(proposalId, address).
+ * Nominee phase:  candidates via ContenderAdded events (search from emittedBlock).
+ *                 Per-candidate votes from votesReceived(proposalId, address).
+ *
+ * Member phase:   candidates via topNominees(proposalId) view.
+ *                 Per-candidate weight from weightReceived(proposalId, address).
  */
 
 import { useEffect, useState } from 'react'
 import { createPublicClient, http, custom, parseAbiItem } from 'viem'
 import { arbitrum } from 'wagmi/chains'
-import { useReadContract } from 'wagmi'
+import { useReadContract, useBlockNumber } from 'wagmi'
 import {
   NOMINEE_ELECTION_GOVERNOR,
   MEMBER_ELECTION_GOVERNOR,
   NOMINEE_ELECTION_ABI,
   MEMBER_ELECTION_ABI,
+  ELECTIONS_START_BLOCK,
 } from '../config/contracts'
 import { shortAddr } from '../utils'
 
@@ -25,14 +30,17 @@ export interface Candidate {
   address: `0x${string}`
   label: string
   votes: bigint          // raw ARB wei votes/weight
-  isNominee: boolean     // for nominee phase: did they cross the threshold?
-  isExcluded: boolean    // for nominee phase: vetoed by nominee vetter?
+  isNominee: boolean     // for nominee phase: crossed threshold?
+  isExcluded: boolean
 }
 
-// ContenderAdded event
 const CONTENDER_ADDED = parseAbiItem(
   'event ContenderAdded(uint256 indexed proposalId, address indexed contender)',
 )
+
+// 10M L2 blocks ≈ 28 days — enough to cover any election nomination period
+const CONTENDER_SEARCH_WINDOW = 10_000_000n
+const CHUNK = 100_000n
 
 function buildClients() {
   const clients: ReturnType<typeof createPublicClient>[] = []
@@ -57,19 +65,21 @@ async function withFallback<T>(fn: (c: ReturnType<typeof createPublicClient>) =>
 }
 
 // ---------------------------------------------------------------------------
-// Nominee-phase candidates (fetched via ContenderAdded events + reads per address)
+// Nominee-phase candidates (ContenderAdded events + per-address votesReceived)
 // ---------------------------------------------------------------------------
 
 export function useNomineePhaseCandidates(
   proposalId: bigint,
-  startBlock: bigint,
-  endBlock: bigint,
+  /** L2 Arbitrum block where the ProposalCreated event was emitted */
+  emittedBlock: bigint,
 ) {
   const [candidates, setCandidates] = useState<Candidate[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  // Get the full nominees list (those that crossed threshold) for badge
+  const { data: currentBlock } = useBlockNumber()
+
+  // nominees() gives addresses that crossed the threshold
   const { data: nomineeAddrs } = useReadContract({
     address: NOMINEE_ELECTION_GOVERNOR,
     abi: NOMINEE_ELECTION_ABI,
@@ -78,41 +88,70 @@ export function useNomineePhaseCandidates(
   })
 
   useEffect(() => {
+    if (!currentBlock) return
+
     let cancelled = false
     setLoading(true)
     setError(null)
 
-    async function fetch() {
+    async function fetchCandidates() {
       try {
-        // 1. Get all ContenderAdded events for this proposal
-        const logs = await withFallback((c) =>
-          c.getLogs({
-            address: NOMINEE_ELECTION_GOVERNOR,
-            event: CONTENDER_ADDED,
-            args: { proposalId },
-            fromBlock: startBlock,
-            toBlock: endBlock + 500_000n, // some buffer past the proposal
-          }),
-        )
+        // Determine L2 block range for ContenderAdded event search.
+        // If emittedBlock is known (>0), search from there.
+        // If not (old static data without emittedBlock), use recent window.
+        const fromBlock = emittedBlock > 0n
+          ? emittedBlock
+          : currentBlock! > ELECTIONS_START_BLOCK
+          ? currentBlock! - CONTENDER_SEARCH_WINDOW
+          : ELECTIONS_START_BLOCK
+        const toBlock = emittedBlock > 0n
+          ? emittedBlock + CONTENDER_SEARCH_WINDOW
+          : currentBlock!
 
-        const addrs = [...new Set(logs.map((l) => l.args.contender as `0x${string}`))]
+        // Chunk the getLogs query
+        const chunks: { from: bigint; to: bigint }[] = []
+        for (let f = fromBlock; f <= toBlock; f += CHUNK + 1n)
+          chunks.push({ from: f, to: f + CHUNK > toBlock ? toBlock : f + CHUNK })
+
+        let logs: { args: { contender?: `0x${string}` } }[] = []
+        for (let i = 0; i < chunks.length; i += 10) {
+          const results = await withFallback((c) =>
+            Promise.all(
+              chunks.slice(i, i + 10).map(({ from, to }) =>
+                c.getLogs({
+                  address: NOMINEE_ELECTION_GOVERNOR,
+                  event: CONTENDER_ADDED,
+                  args: { proposalId },
+                  fromBlock: from,
+                  toBlock: to,
+                }),
+              ),
+            ),
+          )
+          logs = [...logs, ...results.flat()]
+        }
+
+        const addrs = [...new Set(logs.map((l) => l.args.contender as `0x${string}`).filter(Boolean))]
+
+        if (cancelled) return
+
         if (addrs.length === 0) {
           setCandidates([])
           setLoading(false)
           return
         }
 
-        // 2. Read votesReceived for each contender (multicall-style parallel)
-        const clients = buildClients()
-        const client = clients[0]
-        const voteResults = await Promise.all(
-          addrs.map((addr) =>
-            client.readContract({
-              address: NOMINEE_ELECTION_GOVERNOR,
-              abi: NOMINEE_ELECTION_ABI,
-              functionName: 'votesReceived',
-              args: [proposalId, addr],
-            }).catch(() => 0n as bigint),
+        // Fetch votes per contender
+        const voteResults = await withFallback((c) =>
+          Promise.all(
+            addrs.map((addr) =>
+              c.readContract({
+                address: NOMINEE_ELECTION_GOVERNOR,
+                abi: NOMINEE_ELECTION_ABI,
+                functionName: 'votesReceived',
+                args: [proposalId, addr],
+              }).catch(() => 0n as bigint),
+            ),
           ),
         )
 
@@ -123,29 +162,29 @@ export function useNomineePhaseCandidates(
         const result: Candidate[] = addrs.map((addr, i) => ({
           address: addr,
           label: shortAddr(addr),
-          votes: voteResults[i] ?? 0n,
+          votes: (voteResults[i] as bigint) ?? 0n,
           isNominee: nomineeSet.has(addr.toLowerCase()),
-          isExcluded: false, // excluded nominees are filtered out already
+          isExcluded: false,
         }))
 
         result.sort((a, b) => (b.votes > a.votes ? 1 : b.votes < a.votes ? -1 : 0))
         setCandidates(result)
       } catch (e) {
-        if (!cancelled) setError(e instanceof Error ? e.message : 'Failed to load candidates')
+        if (!cancelled) setError(e instanceof Error ? e.message : 'Failed to load contenders')
       } finally {
         if (!cancelled) setLoading(false)
       }
     }
 
-    fetch()
+    fetchCandidates()
     return () => { cancelled = true }
-  }, [proposalId, startBlock, endBlock, nomineeAddrs])
+  }, [proposalId, emittedBlock, currentBlock, nomineeAddrs])
 
   return { candidates, loading, error }
 }
 
 // ---------------------------------------------------------------------------
-// Member-phase candidates (fetched from topNominees() view)
+// Member-phase candidates (topNominees() view + per-address weightReceived)
 // ---------------------------------------------------------------------------
 
 export function useMemberPhaseCandidates(proposalId: bigint) {
@@ -153,7 +192,6 @@ export function useMemberPhaseCandidates(proposalId: bigint) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  // topNominees gives addresses of nominees going into the member election
   const { data: nomineeAddrs, isError } = useReadContract({
     address: MEMBER_ELECTION_GOVERNOR,
     abi: MEMBER_ELECTION_ABI,
@@ -172,20 +210,20 @@ export function useMemberPhaseCandidates(proposalId: bigint) {
     let cancelled = false
     setLoading(true)
 
-    async function fetch() {
+    async function fetchWeights() {
       try {
         const addrs = nomineeAddrs as `0x${string}`[]
-        const clients = buildClients()
-        const client = clients[0]
 
-        const weightResults = await Promise.all(
-          addrs.map((addr) =>
-            client.readContract({
-              address: MEMBER_ELECTION_GOVERNOR,
-              abi: MEMBER_ELECTION_ABI,
-              functionName: 'weightReceived',
-              args: [proposalId, addr],
-            }).catch(() => 0n as bigint),
+        const weightResults = await withFallback((c) =>
+          Promise.all(
+            addrs.map((addr) =>
+              c.readContract({
+                address: MEMBER_ELECTION_GOVERNOR,
+                abi: MEMBER_ELECTION_ABI,
+                functionName: 'weightReceived',
+                args: [proposalId, addr],
+              }).catch(() => 0n as bigint),
+            ),
           ),
         )
 
@@ -194,7 +232,7 @@ export function useMemberPhaseCandidates(proposalId: bigint) {
         const result: Candidate[] = addrs.map((addr, i) => ({
           address: addr,
           label: shortAddr(addr),
-          votes: weightResults[i] ?? 0n,
+          votes: (weightResults[i] as bigint) ?? 0n,
           isNominee: true,
           isExcluded: false,
         }))
@@ -208,7 +246,7 @@ export function useMemberPhaseCandidates(proposalId: bigint) {
       }
     }
 
-    fetch()
+    fetchWeights()
     return () => { cancelled = true }
   }, [nomineeAddrs, isError, proposalId])
 

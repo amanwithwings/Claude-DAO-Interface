@@ -81,8 +81,7 @@ export default function ElectionDetail() {
   // Candidate data
   const nomineeCandidates = useNomineePhaseCandidates(
     proposalId,
-    election?.startBlock ?? 0n,
-    election?.endBlock ?? 0n,
+    election?.emittedBlock ?? 0n,  // L2 block — correct range for getLogs
   )
   const memberCandidates = useMemberPhaseCandidates(proposalId)
   const { candidates, loading: candidatesLoading, error: candidatesError } =
