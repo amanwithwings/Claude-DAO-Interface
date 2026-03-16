@@ -1,7 +1,7 @@
-import { useReadContract, useBlockNumber } from 'wagmi'
+import { useReadContract } from 'wagmi'
 import { Link } from 'react-router-dom'
 import { NOMINEE_ELECTION_ABI, MEMBER_ELECTION_ABI } from '../config/contracts'
-import { blocksToTime } from '../utils'
+import { l1BlockToTime } from '../utils'
 import ProposalStateBadge from './ProposalStateBadge'
 import type { Election } from '../hooks/useElections'
 
@@ -10,8 +10,6 @@ interface Props {
 }
 
 export default function ElectionCard({ election }: Props) {
-  const { data: currentBlock } = useBlockNumber()
-
   const governorAbi = election.phase === 'nominee' ? NOMINEE_ELECTION_ABI : MEMBER_ELECTION_ABI
 
   const { data: stateIndex } = useReadContract({
@@ -37,14 +35,16 @@ export default function ElectionCard({ election }: Props) {
     query: { enabled: election.phase === 'member' },
   })
 
-  const blocksLeft = currentBlock ? Number(election.endBlock - currentBlock) : null
+  // election.endBlock is an L1 Ethereum block number — convert to wall-clock time
+  // without an L1 RPC call using genesis timestamp math.
+  const timeDisplay = l1BlockToTime(election.endBlock)
   const isActive = stateIndex === 1
   const isPending = stateIndex === 0
 
-  const candidateCount =
-    election.phase === 'nominee'
-      ? nomineeCount !== undefined ? Number(nomineeCount) : null
-      : topNominees !== undefined ? (topNominees as `0x${string}`[]).length : null
+  // Nominee phase: nomineeCount = those who crossed threshold (0 during Pending/Active before anyone qualifies)
+  // Member phase: topNominees array length
+  const nomineePhaseCount = nomineeCount !== undefined ? Number(nomineeCount) : null
+  const memberPhaseCount = topNominees !== undefined ? (topNominees as `0x${string}`[]).length : null
 
   const detailPath = `/elections/${election.phase}/${election.proposalId.toString()}`
 
@@ -72,11 +72,7 @@ export default function ElectionCard({ election }: Props) {
           )}
         </div>
 
-        {blocksLeft !== null && (
-          <span className="text-xs text-gray-400 shrink-0">
-            {blocksLeft > 0 ? blocksToTime(blocksLeft) : 'Ended'}
-          </span>
-        )}
+        <span className="text-xs text-gray-400 shrink-0">{timeDisplay}</span>
       </div>
 
       <h3 className="font-medium text-gray-900 text-sm leading-snug mb-3">
@@ -85,10 +81,11 @@ export default function ElectionCard({ election }: Props) {
 
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3 text-xs text-gray-500">
-          {candidateCount !== null && (
-            <span>
-              {election.phase === 'nominee' ? `${candidateCount} nominee${candidateCount !== 1 ? 's' : ''}` : `${candidateCount} nominee${candidateCount !== 1 ? 's' : ''}`}
-            </span>
+          {election.phase === 'member' && memberPhaseCount !== null && (
+            <span>{memberPhaseCount} nominee{memberPhaseCount !== 1 ? 's' : ''}</span>
+          )}
+          {election.phase === 'nominee' && nomineePhaseCount !== null && nomineePhaseCount > 0 && (
+            <span>{nomineePhaseCount} nominee{nomineePhaseCount !== 1 ? 's' : ''}</span>
           )}
           {(isActive || isPending) && (
             <span className="text-blue-600 font-medium">View & Vote →</span>

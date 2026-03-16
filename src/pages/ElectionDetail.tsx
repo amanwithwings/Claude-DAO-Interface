@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { useReadContract, useBlockNumber, useAccount } from 'wagmi'
+import { useReadContract, useAccount } from 'wagmi'
 import Navbar from '../components/Navbar'
 import ProposalStateBadge from '../components/ProposalStateBadge'
 import ElectionVoteModal from '../components/ElectionVoteModal'
@@ -10,7 +10,7 @@ import {
   NOMINEE_ELECTION_ABI,
   MEMBER_ELECTION_ABI,
 } from '../config/contracts'
-import { formatARB, blocksToTime, shortAddr } from '../utils'
+import { formatARB, l1BlockToTime, shortAddr } from '../utils'
 import { useNomineePhaseCandidates, useMemberPhaseCandidates } from '../hooks/useCandidates'
 import { useElections } from '../hooks/useElections'
 
@@ -23,8 +23,6 @@ export default function ElectionDetail() {
   const isNomineePhase = phase === 'nominee'
   const governorAddress = isNomineePhase ? NOMINEE_ELECTION_GOVERNOR : MEMBER_ELECTION_GOVERNOR
   const governorAbi = isNomineePhase ? NOMINEE_ELECTION_ABI : MEMBER_ELECTION_ABI
-
-  const { data: currentBlock } = useBlockNumber()
 
   // Find the election in our list for startBlock (needed for event fetching)
   const { elections } = useElections()
@@ -87,12 +85,14 @@ export default function ElectionDetail() {
   const { candidates, loading: candidatesLoading, error: candidatesError } =
     isNomineePhase ? nomineeCandidates : memberCandidates
 
-  const blocksLeft = currentBlock && deadline ? Number(deadline - currentBlock) : null
+  // deadline is an L1 Ethereum block number — use wall-clock math, not L2 block subtraction
+  const timeDisplay = deadline !== undefined ? l1BlockToTime(deadline) : null
   const isActive = stateIndex === 1
-  const isFullWeight =
-    !isNomineePhase && fullWeightDeadline && currentBlock
-      ? currentBlock <= fullWeightDeadline
-      : false
+  // fullWeightDeadline is also an L1 block — compare via wall-clock
+  const fullWeightTimeDisplay = !isNomineePhase && fullWeightDeadline !== undefined
+    ? l1BlockToTime(fullWeightDeadline)
+    : null
+  const isFullWeight = fullWeightTimeDisplay !== null && fullWeightTimeDisplay !== 'Ended'
 
   const totalVotes = candidates.reduce((sum, c) => sum + c.votes, 0n)
 
@@ -131,8 +131,8 @@ export default function ElectionDetail() {
                 </span>
               )}
             </div>
-            {blocksLeft !== null && (
-              <span className="text-sm text-gray-400 shrink-0">{blocksToTime(blocksLeft)}</span>
+            {timeDisplay !== null && (
+              <span className="text-sm text-gray-400 shrink-0">{timeDisplay}</span>
             )}
           </div>
 
@@ -147,9 +147,9 @@ export default function ElectionDetail() {
           {!isNomineePhase && (
             <p className="text-sm text-gray-500 mt-3">
               ARB holders vote to elect the top 6 nominees into the Security Council. Votes
-              {fullWeightDeadline && currentBlock
+              {fullWeightTimeDisplay !== null
                 ? isFullWeight
-                  ? ' carry full weight until block ' + fullWeightDeadline.toString() + '.'
+                  ? ` carry full weight for ${fullWeightTimeDisplay}.`
                   : ' now carry reduced weight (linear decay to 0).'
                 : ' carry full weight early and decrease over time.'}
               {' '}You can split your voting power across multiple nominees.
