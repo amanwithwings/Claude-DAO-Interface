@@ -28,6 +28,7 @@ import { shortAddr } from '../utils'
 
 export interface Candidate {
   address: `0x${string}`
+  txHash: `0x${string}` | null  // tx hash of ContenderAdded registration event
   label: string
   votes: bigint          // raw ARB wei votes/weight
   isNominee: boolean     // for nominee phase: crossed threshold?
@@ -113,7 +114,7 @@ export function useNomineePhaseCandidates(
         for (let f = fromBlock; f <= toBlock; f += CHUNK + 1n)
           chunks.push({ from: f, to: f + CHUNK > toBlock ? toBlock : f + CHUNK })
 
-        let logs: { args: { contender?: `0x${string}` } }[] = []
+        let logs: { args: { contender?: `0x${string}` }; transactionHash: `0x${string}` | null }[] = []
         for (let i = 0; i < chunks.length; i += 10) {
           const results = await withFallback((c) =>
             Promise.all(
@@ -131,7 +132,13 @@ export function useNomineePhaseCandidates(
           logs = [...logs, ...results.flat()]
         }
 
-        const addrs = [...new Set(logs.map((l) => l.args.contender as `0x${string}`).filter(Boolean))]
+        // Deduplicate by address; record the first registration tx hash per address
+        const addrToTx = new Map<`0x${string}`, `0x${string}` | null>()
+        for (const log of logs) {
+          const addr = log.args.contender as `0x${string}`
+          if (addr && !addrToTx.has(addr)) addrToTx.set(addr, log.transactionHash)
+        }
+        const addrs = [...addrToTx.keys()]
 
         if (cancelled) return
 
@@ -161,6 +168,7 @@ export function useNomineePhaseCandidates(
 
         const result: Candidate[] = addrs.map((addr, i) => ({
           address: addr,
+          txHash: addrToTx.get(addr) ?? null,
           label: shortAddr(addr),
           votes: (voteResults[i] as bigint) ?? 0n,
           isNominee: nomineeSet.has(addr.toLowerCase()),
@@ -231,6 +239,7 @@ export function useMemberPhaseCandidates(proposalId: bigint) {
 
         const result: Candidate[] = addrs.map((addr, i) => ({
           address: addr,
+          txHash: null,
           label: shortAddr(addr),
           votes: (weightResults[i] as bigint) ?? 0n,
           isNominee: true,

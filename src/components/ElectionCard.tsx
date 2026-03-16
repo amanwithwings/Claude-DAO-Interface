@@ -44,9 +44,13 @@ export default function ElectionCard({ election }: Props) {
     args: [election.proposalId],
   })
 
-  // election.endBlock is an L1 Ethereum block number — convert to wall-clock time
-  // without an L1 RPC call using genesis timestamp math.
-  const timeDisplay = deadline !== undefined ? l1BlockToTime(deadline) : '…'
+  // Drive time display from state — during contender submission (Pending/state=0),
+  // proposalDeadline() returns 0 because voting window isn't configured yet.
+  const timeDisplay =
+    stateIndex === undefined ? '…'
+    : stateIndex > 1 ? 'Ended'
+    : stateIndex === 1 && deadline ? l1BlockToTime(deadline)
+    : null  // Pending: show nothing (no false "Ended")
   const isActive = stateIndex === 1
   const isPending = stateIndex === 0
 
@@ -81,7 +85,9 @@ export default function ElectionCard({ election }: Props) {
           )}
         </div>
 
-        <span className="text-xs text-gray-400 shrink-0">{timeDisplay}</span>
+        {timeDisplay !== null && (
+          <span className="text-xs text-gray-400 shrink-0">{timeDisplay}</span>
+        )}
       </div>
 
       <h3 className="font-medium text-gray-900 text-sm leading-snug mb-3">
