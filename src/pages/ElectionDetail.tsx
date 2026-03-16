@@ -85,8 +85,14 @@ export default function ElectionDetail() {
   const { candidates, loading: candidatesLoading, error: candidatesError } =
     isNomineePhase ? nomineeCandidates : memberCandidates
 
-  // deadline is an L1 Ethereum block number — use wall-clock math, not L2 block subtraction
-  const timeDisplay = deadline !== undefined ? l1BlockToTime(deadline) : null
+  // deadline is an L1 Ethereum block number — use wall-clock math, not L2 block subtraction.
+  // During contender submission (Pending/state=0), proposalDeadline() returns 0 because the
+  // voting window hasn't been configured yet. Drive display from state, not deadline alone.
+  const timeDisplay =
+    stateIndex === undefined ? null
+    : stateIndex > 1 ? 'Ended'
+    : stateIndex === 1 && deadline ? l1BlockToTime(deadline)
+    : null  // Pending: voting not open yet, no deadline to show
   const isActive = stateIndex === 1
   // fullWeightDeadline is also an L1 block — compare via wall-clock
   const fullWeightTimeDisplay = !isNomineePhase && fullWeightDeadline !== undefined
@@ -257,11 +263,15 @@ export default function ElectionDetail() {
                           {i + 1}.
                         </span>
                         <a
-                          href={`https://arbiscan.io/address/${c.address}`}
+                          href={
+                            isNomineePhase && c.txHash
+                              ? `https://arbiscan.io/tx/${c.txHash}`
+                              : `https://arbiscan.io/address/${c.address}`
+                          }
                           target="_blank"
                           rel="noreferrer"
                           className="font-mono text-sm text-gray-800 hover:text-blue-600 truncate"
-                          title={c.address}
+                          title={isNomineePhase && c.txHash ? `Registration tx: ${c.txHash}` : c.address}
                         >
                           {shortAddr(c.address)}
                         </a>
@@ -290,16 +300,27 @@ export default function ElectionDetail() {
                         />
                       </div>
                     )}
-                    {/* Full address */}
-                    <div className="mt-1.5">
-                      <a
-                        href={`https://arbiscan.io/address/${c.address}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-xs font-mono text-gray-400 hover:text-blue-500 break-all"
-                      >
-                        {c.address}
-                      </a>
+                    {/* Registration tx or full address */}
+                    <div className="mt-1.5 flex items-center gap-2">
+                      {isNomineePhase && c.txHash ? (
+                        <a
+                          href={`https://arbiscan.io/tx/${c.txHash}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-xs font-mono text-gray-400 hover:text-blue-500 break-all"
+                        >
+                          {c.txHash}
+                        </a>
+                      ) : (
+                        <a
+                          href={`https://arbiscan.io/address/${c.address}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-xs font-mono text-gray-400 hover:text-blue-500 break-all"
+                        >
+                          {c.address}
+                        </a>
+                      )}
                     </div>
                   </div>
                 )
