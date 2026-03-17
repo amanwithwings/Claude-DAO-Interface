@@ -59,8 +59,17 @@ async function fetchLogs(address, fromBlock, toBlock) {
 }
 
 function parseTitle(description) {
-  const first = description.split('\n')[0].trim()
-  return first.startsWith('#') ? first.replace(/^#+\s*/, '') : first
+  const headings = []
+  for (const line of description.split('\n')) {
+    const trimmed = line.trim()
+    if (!trimmed.startsWith('#')) continue
+    const text = trimmed.replace(/^#+\s*/, '').trim()
+    if (text) headings.push(text)
+    if (headings.length >= 2) break
+  }
+  if (headings.length === 0) return 'Untitled Proposal'
+  if (headings.length >= 2 && headings[0].length < 20) return headings[1]
+  return headings[0]
 }
 
 function parse(logs, governor) {

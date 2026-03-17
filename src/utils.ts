@@ -54,9 +54,19 @@ export function fmtDate(unixSeconds: number): string {
 }
 
 /** Extract a human-readable title from a proposal description.
- *  Convention: first line is "# AIP-X: Title" or just "# Title".
+ *  Scans heading lines; skips empty headings and short AIP-number-only labels.
  */
 export function parseTitle(description: string): string {
-  const firstLine = description.split('\n')[0].trim()
-  return firstLine.replace(/^#+\s*/, '') || 'Untitled Proposal'
+  const headings: string[] = []
+  for (const line of description.split('\n')) {
+    const trimmed = line.trim()
+    if (!trimmed.startsWith('#')) continue
+    const text = trimmed.replace(/^#+\s*/, '').trim()
+    if (text) headings.push(text)
+    if (headings.length >= 2) break
+  }
+  if (headings.length === 0) return 'Untitled Proposal'
+  // If the first heading is a short label like "AIP 4", prefer the second
+  if (headings.length >= 2 && headings[0].length < 20) return headings[1]
+  return headings[0]
 }
