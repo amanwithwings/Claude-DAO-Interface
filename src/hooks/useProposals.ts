@@ -13,6 +13,10 @@ export interface Proposal {
   description: string
   startBlock: bigint
   endBlock: bigint
+  /** Unix seconds — when voting opens. Stored by fetchProposals.mjs via getBlock(startBlock). */
+  startTimestamp: number | null
+  /** Unix seconds — when voting closes. Stored by fetchProposals.mjs via getBlock(endBlock). */
+  endTimestamp: number | null
   governor: 'core' | 'treasury'
   governorAddress: `0x${string}`
 }
@@ -35,6 +39,7 @@ const STATIC_CUTOFF = BigInt(staticData.cutoffBlock)
 type StaticProposal = {
   proposalId: string; proposer: string; title: string; description: string
   startBlock: string; endBlock: string; governor: string; governorAddress: string
+  startTimestamp?: number | null; endTimestamp?: number | null
 }
 
 const STATIC_PROPOSALS: Proposal[] = (staticData.proposals as StaticProposal[]).map((p) => ({
@@ -44,6 +49,8 @@ const STATIC_PROPOSALS: Proposal[] = (staticData.proposals as StaticProposal[]).
   description: p.description,
   startBlock: BigInt(p.startBlock),
   endBlock: BigInt(p.endBlock),
+  startTimestamp: p.startTimestamp ?? null,
+  endTimestamp: p.endTimestamp ?? null,
   governor: p.governor as 'core' | 'treasury',
   governorAddress: p.governorAddress as `0x${string}`,
 }))
@@ -102,6 +109,8 @@ async function fetchLogs(
             description: description ?? '',
             startBlock,
             endBlock,
+            startTimestamp: null,
+            endTimestamp: null,
             governor: address === CORE_GOVERNOR ? 'core' : 'treasury',
             governorAddress: address,
           })

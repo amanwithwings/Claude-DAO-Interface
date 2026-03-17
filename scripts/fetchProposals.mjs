@@ -75,7 +75,30 @@ function parse(logs, governor) {
       endBlock: l.args.endBlock.toString(),
       governor,
       governorAddress: governor === 'core' ? CORE_GOVERNOR : TREASURY_GOVERNOR,
+      // blockNumbers deferred — timestamps added below by fetchTimestamps
     }))
+}
+
+async function fetchTimestamps(proposals) {
+  // Collect unique block numbers we need timestamps for
+  const blockNums = [...new Set(proposals.flatMap((p) => [BigInt(p.startBlock), BigInt(p.endBlock)]))]
+  console.log(`\nFetching timestamps for ${blockNums.length} unique blocks…`)
+
+  // Batch in groups of 20 to avoid overloading RPC
+  const tsMap = new Map()
+  for (let i = 0; i < blockNums.length; i += 20) {
+    process.stdout.write(`\r  batch ${Math.ceil((i + 1) / 20)}/${Math.ceil(blockNums.length / 20)}   `)
+    const batch = blockNums.slice(i, i + 20)
+    const blocks = await Promise.all(batch.map((n) => client.getBlock({ blockNumber: n })))
+    for (const blk of blocks) tsMap.set(blk.number.toString(), Number(blk.timestamp))
+  }
+  console.log()
+
+  return proposals.map((p) => ({
+    ...p,
+    startTimestamp: tsMap.get(p.startBlock) ?? null,
+    endTimestamp: tsMap.get(p.endBlock) ?? null,
+  }))
 }
 
 async function main() {
@@ -97,11 +120,12 @@ async function main() {
   console.log('Treasury Governor:')
   const treasuryLogs = await fetchLogs(TREASURY_GOVERNOR, GOVERNANCE_START_BLOCK, toBlock)
 
-  const proposals = [
+  let proposals = [
     ...parse(coreLogs, 'core'),
     ...parse(treasuryLogs, 'treasury'),
   ]
   proposals.sort((a, b) => Number(BigInt(b.startBlock) - BigInt(a.startBlock)))
+  proposals = await fetchTimestamps(proposals)
 
   const out = {
     cutoffBlock: toBlock.toString(),

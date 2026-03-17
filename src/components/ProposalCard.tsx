@@ -4,7 +4,7 @@ import { GOVERNOR_ABI } from '../config/contracts'
 import type { Proposal } from '../hooks/useProposals'
 import ProposalStateBadge from './ProposalStateBadge'
 import VoteBar from './VoteBar'
-import { blocksToTime } from '../utils'
+import { blocksToTime, fmtDate } from '../utils'
 
 interface Props {
   proposal: Proposal
@@ -59,9 +59,20 @@ export default function ProposalCard({ proposal }: Props) {
         </div>
       </div>
 
-      {stateIndex === 1 && blocksLeft > 0 && (
-        <p className="text-xs text-gray-400 mb-2">{blocksToTime(blocksLeft)} remaining</p>
-      )}
+      {/* Date row */}
+      <div className="flex items-center gap-3 text-xs text-gray-400 mb-2">
+        {proposal.startTimestamp && (
+          <span>Voting started {fmtDate(proposal.startTimestamp)}</span>
+        )}
+        {proposal.startTimestamp && proposal.endTimestamp && (
+          <span aria-hidden>·</span>
+        )}
+        {proposal.endTimestamp && stateIndex !== undefined && stateIndex === 1 && blocksLeft > 0 ? (
+          <span className="text-blue-500">{blocksToTime(blocksLeft)} remaining</span>
+        ) : proposal.endTimestamp && stateIndex !== undefined && stateIndex > 1 ? (
+          <span>Ended {fmtDate(proposal.endTimestamp)}</span>
+        ) : null}
+      </div>
 
       {votes ? (
         <VoteBar

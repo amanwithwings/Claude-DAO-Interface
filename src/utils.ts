@@ -46,6 +46,13 @@ export function l1BlockToTime(l1Deadline: bigint): string {
   return `~${minutes}m`
 }
 
+/** Format a Unix timestamp (seconds) as a short date like "Mar 15, 2026". */
+export function fmtDate(unixSeconds: number): string {
+  return new Date(unixSeconds * 1000).toLocaleDateString('en-US', {
+    month: 'short', day: 'numeric', year: 'numeric',
+  })
+}
+
 /** Extract a human-readable title from a proposal description.
  *  Convention: first line is "# AIP-X: Title" or just "# Title".
  */
